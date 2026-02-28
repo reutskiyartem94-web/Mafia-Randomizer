@@ -52,17 +52,10 @@ void MainWindow::generateRoles()
 
     int playerCount = ui->playerSpin->value();
     int mafiaCount  = ui->mafiaSpin->value();
-    int host = ui->hostSpin->value();
 
     if (playerCount < 6) {
         QMessageBox::warning(this, "Error",
                              "Minimum number of players - 6");
-        return;
-    }
-
-    if (host > playerCount) {
-        QMessageBox::warning(this, "Error",
-                             "Host should be among players or with #0");
         return;
     }
 
@@ -74,7 +67,8 @@ void MainWindow::generateRoles()
 
     if ((playerCount < 7 && mafiaCount > 1) ||
         (playerCount < 9 && mafiaCount > 2) ||
-        (playerCount < 14 && mafiaCount > 3)) {
+        (playerCount < 14 && mafiaCount > 3) || 
+        (mafiaCount > 4)) {
         QMessageBox::warning(this, "Error",
                              "Too many Mafia for this number of players");
         return;
@@ -114,38 +108,11 @@ void MainWindow::generateRoles()
     // Output
     ui->resultText->clear();
 
-    if (host > 0) {
-        // Removing Host from players count
-        count.erase(std::remove(count.begin(), count.end(), host), count.end());
-
-        // Removing 1 Citizen role because Host is among players.
-        auto it = std::find(roles.begin(), roles.end(), "Citizen");
-        if (it != roles.end()) {
-            roles.erase(it);
-        }
-
-        // Formatting text color
-        formatText (Qt::yellow, QFont::Normal,
-                   QString("Player #%1: %2\n")
-                       .arg(host)
-                       .arg(QString::fromStdString("Host"))
-);
-
-
-    }
-
     // Assign and show roles
     for (int i = 0; i < count.size(); i++) {
         std::uniform_int_distribution<size_t> dist(0, roles.size() - 1);
         size_t r = dist(gen);
-
-        if (roles[r] == "Mafia") {
-            formatText (Qt::red, QFont::Normal,
-                       QString("\nPlayer #%1: %2")
-                           .arg(count[i])
-                           .arg(QString::fromStdString(roles[r])));
-        }
-        else if (roles[r] == "Mafia Don") {
+        if (roles[r] == "Mafia Don" || roles[r] == "Mafia") {
             formatText (Qt::red, QFont::Normal,
                        QString("\nPlayer #%1: %2")
                            .arg(count[i])
