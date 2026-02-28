@@ -12,6 +12,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets LinguistTools)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets LinguistTools)
 
+set(CMAKE_MACOSX_RPATH ON)
+set(CMAKE_INSTALL_RPATH "${Qt6_DIR}/../../../")
+
 set(TS_FILES MafRand_Desktop_en_US.ts)
 
 set(PROJECT_SOURCES
@@ -80,8 +83,10 @@ if(APPLE)
     set_target_properties(${PROJECT_NAME} PROPERTIES
         MACOSX_BUNDLE_GUI_IDENTIFIER "com.artem.reutskyi.mafrand"
         MACOSX_BUNDLE_BUNDLE_NAME "MafRand"
-        # This tells the app to look for libraries inside its own bundle
-        BUILD_WITH_INSTALL_RPATH TRUE
-        INSTALL_RPATH "@executable_path/../Frameworks"
+        MACOSX_BUNDLE TRUE
+        # 1. Allow the app to find Qt at its original location during build/debug
+        BUILD_WITH_INSTALL_RPATH FALSE
+        # 2. Add the Qt library dir to the RPATH so dyld can find it
+        INSTALL_RPATH "@executable_path/../Frameworks;${Qt6_DIR}/../../../"
     )
 endif()
